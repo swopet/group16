@@ -1,0 +1,26 @@
+cd /scratch/spring2018/16
+git init
+cp /scratch/files/environment-setup-i586-poky-linux.csh environment-setp-i586-poky-linux.csh
+cp /scratch/files/core-image-lsb-sdk-qemux86.ext4 core-image-lsb-sdk-qemux86.ext4
+cp /scratch/files/bzImage-qemux86.bin bzImage-qemux86.bin
+vim README.md
+git add --all
+git commit -a
+git clone git://git.yoctoproject.org/linux-yocto-3.19.git
+cd linux-yocto-3.19
+git checkout tags/v3.19.2
+cp /scratch/files/config-3.19.2-yocto-standard .config
+make -j4 all
+cd ..
+qemu-system-i386 -gdb tcp::5516 -S -nographic -kernel /scratch/spring2018/16/linux-yocto-3.19/arch/x86/boot/bzImage -drive file=core-image-lsb-sdk-qemux86.ext4,if=virtio -enable-kvm -net none -usb -localtime --no-reboot --append "root=/dev/vda rw console=ttyS0 debug"
+
+IN ANOTHER SSH:
+cd /scratch/spring2018/16
+gdb -tui
+$GDB
+target remote:5516
+Continue
+
+IN VM:
+root
+shutdown now
