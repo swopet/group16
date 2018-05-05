@@ -1,0 +1,145 @@
+\documentclass[letterpaper,10pt]{article}
+
+\usepackage{graphicx}                                        
+\usepackage{amssymb}                                         
+\usepackage{amsmath}                                         
+\usepackage{amsthm}                                          
+
+\usepackage{alltt}                                           
+\usepackage{float}
+\usepackage{color}
+\usepackage{url}
+
+\usepackage{balance}
+%\usepackage[TABBOTCAP, tight]{subfigure}
+\usepackage{enumitem}
+\usepackage{pstricks, pst-node}
+
+\usepackage{geometry}
+\geometry{textheight=8.5in, textwidth=6in}
+
+%Allow sub titles
+\usepackage{titling}
+\newcommand{\subtitle}[1]{%
+  \posttitle{%
+    \par\end{center}
+    \begin{center}\large#1\end{center}
+    \vskip0.5em}%
+}
+
+%random comment
+
+\newcommand{\cred}[1]{{\color{red}#1}}
+\newcommand{\cblue}[1]{{\color{blue}#1}}
+
+\usepackage{hyperref}
+\usepackage{geometry}
+
+\def\name{Trevor Swope, David Okubo, and Megan McCormick}
+
+%pull in the necessary preamble matter for pygments output
+\input{pygments.tex}
+
+%% The following metadata will show up in the PDF properties
+\hypersetup{
+  colorlinks = true,
+  urlcolor = black,
+  pdfauthor = {\name},
+  pdfkeywords = {cs444 ``operating systems'' files filesystem I/O},
+  pdftitle = {CS 444 Homework 1 Write Up},
+  pdfsubject = {CS 444 Homework 1},
+  pdfpagemode = UseNone
+}
+
+%Set Up title page
+\title{Project 1: Getting Acquainted}
+\subtitle{CS 444, Spring 2018}
+\author{Trevor Swope, David Okubo, and Megan McCormick}
+\begin{document}
+
+%Create Title page
+\begin{titlingpage}
+\maketitle 
+\begin{abstract}
+This paper details the progress we made in getting the qemu virtual machine set up on the server for the CS444 Operating Systems II class.
+\end{abstract}
+\end{titlingpage}
+\section{Log of Commands}
+\subsection{In Original SSH}
+\begin{enumerate}
+	\item cd /scratch/spring2018/16
+	\item git init
+	\item  cp /scratch/files/environment-setup-i586-poky-linux.csh environment-setp-i586-poky-linux.csh
+	\item cp /scratch/files/core-image-lsb-sdk-qemux86.ext4 core-image-lsb-sdk-qemux86.ext4
+  \item cp /scratch/files/bzImage-qemux86.bin bzImage-qemux86.bin
+  \item vim README.md
+  \item git add --all
+  \item git commit -a
+  \item git clone git://git.yoctoproject.org/linux-yocto-3.19.git
+  \item cd linux-yocto-3.19
+  \item git checkout tags/v3.19.2
+  \item cp /scratch/files/config-3.19.2-yocto-standard .config
+  \item make -j4 all
+  \item cd ..
+  \item qemu-system-i386 -gdb tcp::5516 -S -nographic -kernel /scratch/spring2018/16/linux-yocto-3.19/arch/x86/boot/bzImage -drive file=core-image-lsb         -sdk-qemux86.ext4,if=virtio -enable-kvm -net none -usb -localtime --no-reboot --append "root=/dev/vda rw console=ttyS0 debug"
+\end{enumerate}
+
+\subsection{IN ANOTHER SSH}
+\begin{enumerate}
+  \item cd /scratch/spring2018/16
+  \item gdb -tui
+  \item \$GDB
+  \item target remote:5516
+  \item Continue
+\end{enumerate}
+
+\subsection{IN VM}
+\begin{enumerate}
+  \item root
+  \item shutdown now
+\end{enumerate}
+
+\section{Qemu Flags}
+\begin{itemize}
+  \item -gdb tcp::5516
+    \subitem Wait for gdb connection on tcp::5516
+  \item -S
+    \subitem Do not start CPU at startup
+  \item -nographic
+    \subitem Disable graphical output so that QEMU is a simple command line application
+  \item -kernel bzImage-quemux86.bin
+    \subitem Use bzImage-quemux86.bin as kernel image
+  \item -drive file=core-image-lsb-sdk-qemux86.ext4,if=virtio
+    \subitem Define a new drive using the disk image "core-image-lsb-sdk-qemux86.ext4" connected with the virtio interface
+  \item -enable-kvm
+    \subitem Enable KVM full virtualization support
+  \item -net none
+    \subitem Indicates that no network devices should be configured
+  \item -usb
+    \subitem Enable the USB driver
+  \item -localtime
+    \subitem Set Real-time clock to start at local time
+  \item --no-reboot
+    \subitem Exit instead of rebooting
+  \item --append "root=/dev/vda rw console=ttyS0 debug"
+    \subitem Use "root=/dev/vda rw console=ttyS0 debug" as kernel command line
+\end{itemize}
+
+\section{Work Log}
+\begin{itemize}
+  \item 4/11/2018: Trevor set up kernel and VM
+  \item 4/11/2018: David researched command flag meanings
+  \item 4/11/2018: Megan started writeup
+  \item 4/15/2018: Trevor finished and submitted writeup
+\end{itemize}
+
+\section{Version Control History}
+\input{changelog.tex}
+
+\nocite{*}
+\bibliographystyle{ieeetr}
+\bibliography{hw1}
+
+%input the pygmentized output of mt19937ar.c, using a (hopefully) unique name
+%this file only exists at compile time. Feel free to change that.
+\end{document}

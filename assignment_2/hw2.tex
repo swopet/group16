@@ -1,4 +1,4 @@
-\documentclass[letterpaper,10pt,titlepage]{article}
+\documentclass[letterpaper,10pt]{article}
 
 \usepackage{graphicx}                                        
 \usepackage{amssymb}                                         
@@ -18,6 +18,15 @@
 \usepackage{geometry}
 \geometry{textheight=8.5in, textwidth=6in}
 
+%Allow sub titles
+\usepackage{titling}
+\newcommand{\subtitle}[1]{%
+  \posttitle{%
+    \par\end{center}
+    \begin{center}\large#1\end{center}
+    \vskip0.5em}%
+}
+
 %random comment
 
 \newcommand{\cred}[1]{{\color{red}#1}}
@@ -26,7 +35,7 @@
 \usepackage{hyperref}
 \usepackage{geometry}
 
-\def\name{D. Kevin McGrath}
+\def\name{Trevor Swope, David Okubo, and Megan McCormick}
 
 %pull in the necessary preamble matter for pygments output
 \input{pygments.tex}
@@ -36,16 +45,42 @@
   colorlinks = true,
   urlcolor = black,
   pdfauthor = {\name},
-  pdfkeywords = {cs311 ``operating systems'' files filesystem I/O},
-  pdftitle = {CS 311 Project 1: UNIX File I/O},
-  pdfsubject = {CS 311 Project 1},
+  pdfkeywords = {cs444 ``operating systems'' files filesystem I/O},
+  pdftitle = {CS 444 Homework 2 Write Up},
+  pdfsubject = {CS 444 Homework 2},
   pdfpagemode = UseNone
 }
 
+%Set Up title page
+\title{Project 2: I/O Elevators}
+\subtitle{CS 444, Spring 2018}
+\author{Trevor Swope, David Okubo, and Megan McCormick}
 \begin{document}
+
+%Create Title page
+\begin{titlingpage}
+\maketitle 
+\begin{abstract}
+
+\end{abstract}
+\end{titlingpage}
+\section{Questions}
+\subsection{1. What do you think the main point of the assignment is?}
+
+\subsection{2. How did you personally approach the problem? Design decisions, algorithms, etc.}
+
+\subsection{3. How did you ensure your soltuion was correct? Testing details, for instance.}
+
+\subsection{4. What did you learn?}
+
+\subsection{5. How should the TA evaluate your work? Provide detailed steps to prove correctness.}
+
+\section{Version Control History}
+\input{changelog.tex}
+
 \nocite{*}
 \bibliographystyle{ieeetr}
-\bibliography{template}
+\bibliography{hw1}
 
 %input the pygmentized output of mt19937ar.c, using a (hopefully) unique name
 %this file only exists at compile time. Feel free to change that.
