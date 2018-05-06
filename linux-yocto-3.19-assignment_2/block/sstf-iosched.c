@@ -1,5 +1,7 @@
 /*
  * C-LOOK I/O scheduler
+ * made from a modified noop-iosched.c
+ * Group 16: Trevor Swope, Megan McCormick, David Okubo
  */
 #include <linux/blkdev.h>
 #include <linux/elevator.h>
@@ -7,6 +9,8 @@
 #include <linux/module.h>
 #include <linux/slab.h>
 #include <linux/init.h>
+
+int disk_head = -1;
 
 struct sstf_data {
 	struct list_head queue;
@@ -16,6 +20,8 @@ static void sstf_merged_requests(struct request_queue *q, struct request *rq,
 				 struct request *next)
 {
 	list_del_init(&next->queuelist);
+	//sort on merge too
+	elv_dispatch_sort(q, next);
 }
 
 static int sstf_dispatch(struct request_queue *q, int force)
@@ -27,6 +33,8 @@ static int sstf_dispatch(struct request_queue *q, int force)
 		rq = list_entry(nd->queue.next, struct request, queuelist);
 		list_del_init(&rq->queuelist);
 		elv_dispatch_sort(q, rq);
+		//also set the disk_head to the request's position
+		disk_head = blk_rq_pos(rq);
 		return 1;
 	}
 	return 0;
@@ -35,8 +43,24 @@ static int sstf_dispatch(struct request_queue *q, int force)
 static void sstf_add_request(struct request_queue *q, struct request *rq)
 {
 	struct sstf_data *nd = q->elevator->elevator_data;
+	struct list_head *curr = NULL;
 
-	list_add_tail(&rq->queuelist, &nd->queue);
+	list_for_each(curr, &nd->queue){
+	        struct request *curr_req = list_entry(curr, struct request, queuelist);
+
+		if (blk_rq_pos(rq) <= disk_head){
+		   	//if current position is less than or equal to the disk head, break and add 
+		   	if (blk_rq_pos(curr_req) < disk_head && blk_rq_pos(rq) < blk_rq_pos(curr_req))
+			   	break;
+		}
+		else {
+			if (blk_rq_pos(curr_req) < disk_head || blk_rq_pos(rq) < blk_rq_pos(curr_req))
+			   	break;
+		}
+
+	}
+
+	list_add_tail(&rq->queuelist, curr);
 }
 
 static struct request *
@@ -121,4 +145,4 @@ module_exit(sstf_exit);
 
 MODULE_AUTHOR("Group 16");
 MODULE_LICENSE("GPL");
-MODULE_DESCRIPTION("LOOK IO scheduler");
+MODULE_DESCRIPTION("C-LOOK IO scheduler");
