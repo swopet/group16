@@ -1,7 +1,5 @@
 /*
- * C-LOOK I/O scheduler
- * made from a modified noop-iosched.c
- * Group 16: Trevor Swope, Megan McCormick, David Okubo
+ * elevator sstf
  */
 #include <linux/blkdev.h>
 #include <linux/elevator.h>
@@ -20,8 +18,6 @@ static void sstf_merged_requests(struct request_queue *q, struct request *rq,
 				 struct request *next)
 {
 	list_del_init(&next->queuelist);
-	//sort on merge too
-	elv_dispatch_sort(q, next);
 }
 
 static int sstf_dispatch(struct request_queue *q, int force)
@@ -33,8 +29,18 @@ static int sstf_dispatch(struct request_queue *q, int force)
 		rq = list_entry(nd->queue.next, struct request, queuelist);
 		list_del_init(&rq->queuelist);
 		elv_dispatch_sort(q, rq);
-		//also set the disk_head to the request's position
+   //also set the disk_head to the request's position
 		disk_head = blk_rq_pos(rq);
+   //Print status
+   		switch(rq_data_dir(rq)){
+		case READ:
+		   	printk("C-LOOK: dispatch READ %lu\n", blk_rq_pos(rq));
+		break;
+		case WRITE:
+			printk("C-LOOK: dispatch WRITE %lu\n", blk_rq_pos(rq));
+		break;
+		}
+    
 		return 1;
 	}
 	return 0;
@@ -44,23 +50,31 @@ static void sstf_add_request(struct request_queue *q, struct request *rq)
 {
 	struct sstf_data *nd = q->elevator->elevator_data;
 	struct list_head *curr = NULL;
-
+	
 	list_for_each(curr, &nd->queue){
-	        struct request *curr_req = list_entry(curr, struct request, queuelist);
-
-		if (blk_rq_pos(rq) <= disk_head){
-		   	//if current position is less than or equal to the disk head, break and add 
-		   	if (blk_rq_pos(curr_req) < disk_head && blk_rq_pos(rq) < blk_rq_pos(curr_req))
-			   	break;
+	   	struct request *curr_req = list_entry(curr, struct request,\
+		      					queuelist);
+		if (blk_rq_pos(rq) < disk_head){
+		   	//if current position is less than the disk head, break and add
+			if (blk_rq_pos(curr_req) < disk_head && blk_rq_pos(rq) < blk_rq_pos(curr_req))
+				break;
 		}
 		else {
-			if (blk_rq_pos(curr_req) < disk_head || blk_rq_pos(rq) < blk_rq_pos(curr_req))
+			if (blk_rq_pos(curr_req) < disk_head || \
+			    blk_rq_pos(rq) < blk_rq_pos(curr_req))
 			   	break;
 		}
 
 	}
-
 	list_add_tail(&rq->queuelist, curr);
+   	switch(rq_data_dir(rq)){
+	case READ:
+	   	printk("C-LOOK: add READ %lu\n", blk_rq_pos(rq));
+		break;
+	case WRITE:
+		printk("C-LOOK: add WRITE %lu\n", blk_rq_pos(rq));
+		break;
+	}
 }
 
 static struct request *
@@ -143,6 +157,6 @@ module_init(sstf_init);
 module_exit(sstf_exit);
 
 
-MODULE_AUTHOR("Group 16");
+MODULE_AUTHOR("Group 16: Trevor Swope, Megan McCormick, David Okubo");
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("C-LOOK IO scheduler");

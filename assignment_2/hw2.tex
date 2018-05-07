@@ -66,8 +66,10 @@
 \end{titlingpage}
 \section{Questions}
 \subsection{1. What do you think the main point of the assignment is?}
+The main point of this assignment is probably to get us thinking about how the kernel handles requests for I/O of data from the disk, and understand the benefits of different schedulers. It was also a good introduction to kernel programming and understanding how to implement a patch to Linux.
 
 \subsection{2. How did you personally approach the problem? Design decisions, algorithms, etc.}
+After writing down pseudocode for both LOOK and C-LOOK, we decided to use C-LOOK; doing C-LOOK as opposed to LOOK allowed us to move the disk head only in one direction, simplifying the implementation somewhat.
 
 \subsection{3. How did you ensure your soltuion was correct? Testing details, for instance.}
 
@@ -82,6 +84,4 @@
 \bibliographystyle{ieeetr}
 \bibliography{hw2}
 
-%input the pygmentized output of mt19937ar.c, using a (hopefully) unique name
-%this file only exists at compile time. Feel free to change that.
 \end{document}
