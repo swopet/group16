@@ -71,11 +71,24 @@ The main point of this assignment is probably to get us thinking about how the k
 \subsection{2. How did you personally approach the problem? Design decisions, algorithms, etc.}
 After writing down pseudocode for both LOOK and C-LOOK, we decided to use C-LOOK; doing C-LOOK as opposed to LOOK allowed us to move the disk head only in one direction, simplifying the implementation somewhat.
 
-\subsection{3. How did you ensure your soltuion was correct? Testing details, for instance.}
+\subsection{3. How did you ensure your solution was correct? Testing details, for instance.}
+We put kprint statements in the dispatch and add functions; when a request is added, it is printed as either read or write, and when a request is dispatched, it is printed as either read or write. This way, we see that when requests are added, they are dispatched in the expected order.
 
 \subsection{4. What did you learn?}
+From tracing through the No-op scheduler code we obtained an extensive understanding of how schedulers work on a Linux kernel. After writing the C-Look scheduler, we discovered it to be very similar in code, but you can see how it is a more efficient scheduler.
 
 \subsection{5. How should the TA evaluate your work? Provide detailed steps to prove correctness.}
+We run qemu with the following flags after sourcing the environment:\\
+qemu-system-i386 -gsb tcp::5516 -S -nographic -kernel /scratch/spring2018/16/linux-yocto-3.19-assignment\_2/arch/x86/boot/bzImage -drive file=core-image-lsb-sdk-qemux86.ext4 -enable-kvm -net none -usb -localtime --no-reboot --append "root=/dev/hda rw console=ttyS0 debug"\\
+Then, we connect in a separate shell with:\\
+gdb -tui\\
+\$GDB\\
+target remote:5516\\
+Continue\\
+Then, in the vm, you should see reads and writes happen as they start up. You should observe that requests that are dispatched in ascending order of disk position. For a simple test, run the following commands:\\
+touch file\\
+cat file\\
+This should read and write.
 
 \section{Version Control History}
 \input{changelog.tex}
